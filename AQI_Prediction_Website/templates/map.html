@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Pollution Map | AQI Analytics</title>
+
+    <!-- YOUR EXISTING CSS -->
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <!-- LEAFLET -->
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+
+    <style>
+
+/* =========================================
+   MAP PAGE SIDEBAR
+   ========================================= */
+
+.sidebar {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 260px !important;
+    height: 100vh !important;
+    background: #064e3b !important;
+    color: white !important;
+    padding: 18px 17px !important;
+    box-sizing: border-box !important;
+    z-index: 1000 !important;
+}
+
+.sidebar-logo {
+    margin-bottom: 28px !important;
+}
+
+.sidebar-logo h2 {
+    margin: 0 !important;
+    font-size: 24px !important;
+    color: white !important;
+}
+
+.sidebar-logo p {
+    margin: 8px 0 0 !important;
+    font-size: 16px !important;
+    color: white !important;
+}
+
+.sidebar-nav {
+    margin-top: 0 !important;
+}
+
+.sidebar .nav-link {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 13px 17px !important;
+    margin-bottom: 5px !important;
+    color: white !important;
+    text-decoration: none !important;
+    border-radius: 9px !important;
+    font-size: 16px !important;
+    font-weight: 400 !important;
+    transition: 0.2s ease !important;
+}
+
+.sidebar .nav-link span {
+    width: 18px;
+    text-align: center;
+}
+
+.sidebar .nav-link:hover {
+    background: rgba(255,255,255,0.08) !important;
+}
+
+.sidebar .nav-link.active {
+    background: #198754 !important;
+    color: white !important;
+    font-weight: 600 !important;
+}
+
+        /* =========================================
+           MAP PAGE ONLY
+           ========================================= */
+
+        .map-page-layout {
+
+            display: grid;
+
+            grid-template-columns: minmax(0, 1fr) 260px;
+
+            gap: 18px;
+
+            margin-top: 20px;
+
+            align-items: start;
+
+        }
+
+
+        /* =========================================
+           MAP CARD
+           ========================================= */
+
+        .map-main-card {
+
+            background: #ffffff;
+
+            border-radius: 16px;
+
+            padding: 20px;
+
+            box-shadow:
+                0 4px 15px rgba(0, 0, 0, 0.06);
+
+        }
+
+
+        .map-main-card h2 {
+
+            margin: 0 0 6px;
+
+            font-size: 20px;
+
+            color: #14532d;
+
+        }
+
+
+        .map-main-card .map-subtitle {
+
+            margin: 0 0 15px;
+
+            font-size: 13px;
+
+            color: #64748b;
+
+        }
+
+
+        /* =========================================
+           MAP
+           ========================================= */
+
+        #aqiMap {
+
+            width: 100%;
+
+            height: 430px;
+
+            border-radius: 12px;
+
+            overflow: hidden;
+
+        }
+
+
+        /* =========================================
+           LEGEND
+           ========================================= */
+
+        .map-legend {
+
+            display: flex;
+
+            gap: 22px;
+
+            margin-top: 14px;
+
+            flex-wrap: wrap;
+
+        }
+
+
+        .legend-item {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            font-size: 13px;
+
+            color: #475569;
+
+        }
+
+
+        .legend-dot {
+
+            width: 13px;
+
+            height: 13px;
+
+            border-radius: 50%;
+
+        }
+
+
+        .legend-green {
+
+            background: #22c55e;
+
+        }
+
+
+        .legend-yellow {
+
+            background: #f59e0b;
+
+        }
+
+
+        .legend-red {
+
+            background: #ef4444;
+
+        }
+
+
+        /* =========================================
+           LOCATION COUNT
+           ========================================= */
+
+        .map-location-count {
+
+            display: inline-block;
+
+            margin-top: 13px;
+
+            padding: 8px 13px;
+
+            border-radius: 9px;
+
+            background: #f0fdf4;
+
+            color: #14532d;
+
+            font-size: 13px;
+
+            font-weight: 600;
+
+        }
+
+
+        /* =========================================
+           RIGHT PANEL
+           ========================================= */
+
+        .map-summary {
+
+            background: #ffffff;
+
+            border-radius: 16px;
+
+            padding: 17px;
+
+            box-shadow:
+                0 4px 15px rgba(0, 0, 0, 0.06);
+
+        }
+
+
+        .map-summary h2 {
+
+            margin: 0 0 5px;
+
+            font-size: 18px;
+
+            color: #14532d;
+
+        }
+
+
+        .summary-description {
+
+            margin: 0 0 14px;
+
+            font-size: 12px;
+
+            color: #64748b;
+
+            line-height: 1.4;
+
+        }
+
+
+        /* =========================================
+           SUMMARY BOX
+           ========================================= */
+
+        .summary-box {
+
+            padding: 13px;
+
+            border-radius: 11px;
+
+            margin-bottom: 10px;
+
+        }
+
+
+        .summary-low {
+
+            background: #f0fdf4;
+
+            border-left: 4px solid #22c55e;
+
+        }
+
+
+        .summary-moderate {
+
+            background: #fffbeb;
+
+            border-left: 4px solid #f59e0b;
+
+        }
+
+
+        .summary-high {
+
+            background: #fef2f2;
+
+            border-left: 4px solid #ef4444;
+
+        }
+
+
+        .summary-title {
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            color: #334155;
+
+            margin-bottom: 5px;
+
+        }
+
+
+        .summary-aqi {
+
+            font-size: 25px;
+
+            font-weight: 700;
+
+            color: #14532d;
+
+        }
+
+
+        .summary-label {
+
+            font-size: 11px;
+
+            color: #64748b;
+
+        }
+
+
+        .summary-count {
+
+            margin-top: 5px;
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+            color: #475569;
+
+        }
+
+
+        /* =========================================
+           TIP
+           ========================================= */
+
+        .map-tip {
+
+            background: #f8fafc;
+
+            padding: 12px;
+
+            border-radius: 10px;
+
+            margin-top: 13px;
+
+        }
+
+
+        .map-tip strong {
+
+            color: #14532d;
+
+            font-size: 13px;
+
+        }
+
+
+        .map-tip p {
+
+            margin: 5px 0 0;
+
+            color: #64748b;
+
+            font-size: 11px;
+
+            line-height: 1.4;
+
+        }
+
+
+        /* =========================================
+           ABOUT MAP
+           ========================================= */
+
+        .map-about {
+
+            background: #ffffff;
+
+            border-radius: 16px;
+
+            padding: 20px;
+
+            margin-top: 18px;
+
+            box-shadow:
+                0 4px 15px rgba(0, 0, 0, 0.06);
+
+        }
+
+
+        .map-about h2 {
+
+            margin: 0 0 8px;
+
+            color: #14532d;
+
+            font-size: 19px;
+
+        }
+
+
+        .map-about p {
+
+            margin: 6px 0;
+
+            color: #64748b;
+
+            font-size: 13px;
+
+            line-height: 1.6;
+
+        }
+
+
+        /* =========================================
+           RESPONSIVE
+           ========================================= */
+
+        @media (max-width: 1000px) {
+
+            .map-page-layout {
+
+                grid-template-columns: 1fr;
+
+            }
+
+        }
+
+
+        @media (max-width: 700px) {
+
+            #aqiMap {
+
+                height: 380px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================================
+         SAME SIDEBAR AS OTHER PAGES
+         ========================================= -->
+
+   <aside class="sidebar">
+
+    <div class="sidebar-logo">
+        <h2>🌿 AQI Analytics</h2>
+        <p>Air Quality Intelligence</p>
+    </div>
+
+    <nav class="sidebar-nav">
+
+        <a href="/" class="nav-link">
+            <span>📊</span>
+            Dashboard
+        </a>
+
+        <a href="/analysis" class="nav-link">
+            <span>📈</span>
+            AQI Analysis
+        </a>
+
+        <a href="/prediction" class="nav-link">
+            <span>🤖</span>
+            AQI Prediction
+        </a>
+
+        <a href="/map" class="nav-link active">
+            <span>🗺️</span>
+            Pollution Map
+        </a>
+
+        <a href="/pollutants" class="nav-link">
+            <span>🧪</span>
+            Pollutants
+        </a>
+
+        <a href="/clustering" class="nav-link">
+            <span>🔵</span>
+            Clustering
+        </a>
+
+        <a href="/dataset" class="nav-link">
+            <span>📁</span>
+            Dataset
+        </a>
+
+        <a href="/about" class="nav-link">
+            <span>ℹ️</span>
+            About Project
+        </a>
+
+    </nav>
+
+</aside>
+
+    <!-- =========================================
+         MAIN CONTENT
+         ========================================= -->
+
+    <main class="main-content">
+
+
+        <!-- TOPBAR -->
+
+        <div class="topbar">
+
+            <div>
+
+                <h1>Pollution Map</h1>
+
+                <p>
+                    Geographical distribution of air pollution across India
+                </p>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =========================================
+             MAP + SUMMARY
+             ========================================= -->
+
+        <div class="map-page-layout">
+
+
+            <!-- =====================================
+                 MAP
+                 ===================================== -->
+
+            <div class="map-main-card">
+
+
+                <h2>
+                    🗺️ Air Pollution Distribution
+                </h2>
+
+
+                <p class="map-subtitle">
+
+                    Actual AQI locations from the
+                    cleaned project dataset.
+
+                </p>
+
+
+                <div id="aqiMap"></div>
+
+
+                <!-- LEGEND -->
+
+                <div class="map-legend">
+
+
+                    <div class="legend-item">
+
+                        <span class="legend-dot legend-green"></span>
+
+                        Low Pollution
+
+                    </div>
+
+
+                    <div class="legend-item">
+
+                        <span class="legend-dot legend-yellow"></span>
+
+                        Moderate Pollution
+
+                    </div>
+
+
+                    <div class="legend-item">
+
+                        <span class="legend-dot legend-red"></span>
+
+                        High Pollution
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- LOCATION COUNT -->
+
+                <div class="map-location-count">
+
+                    📍 Locations displayed:
+
+                    <span id="locationCount">0</span>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- =====================================
+                 RIGHT SUMMARY
+                 ===================================== -->
+
+            <div class="map-summary">
+
+
+                <h2>
+                    📊 Pollution Summary
+                </h2>
+
+
+                <p class="summary-description">
+
+                    AQI-based pollution clusters
+                    identified from the dataset.
+
+                </p>
+
+
+
+                <!-- LOW -->
+
+                <div class="summary-box summary-low">
+
+
+                    <div class="summary-title">
+
+                        🟢 Low Pollution
+
+                    </div>
+
+
+                    <div class="summary-aqi">
+
+                        {{ summary["Low Pollution"]["avg_aqi"] }}
+
+                    </div>
+
+
+                    <div class="summary-label">
+
+                        Average AQI
+
+                    </div>
+
+
+                    <div class="summary-count">
+
+                        {{ summary["Low Pollution"]["count"] }}
+                        locations
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- MODERATE -->
+
+                <div class="summary-box summary-moderate">
+
+
+                    <div class="summary-title">
+
+                        🟡 Moderate Pollution
+
+                    </div>
+
+
+                    <div class="summary-aqi">
+
+                        {{ summary["Moderate Pollution"]["avg_aqi"] }}
+
+                    </div>
+
+
+                    <div class="summary-label">
+
+                        Average AQI
+
+                    </div>
+
+
+                    <div class="summary-count">
+
+                        {{ summary["Moderate Pollution"]["count"] }}
+                        locations
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- HIGH -->
+
+                <div class="summary-box summary-high">
+
+
+                    <div class="summary-title">
+
+                        🔴 High Pollution
+
+                    </div>
+
+
+                    <div class="summary-aqi">
+
+                        {{ summary["High Pollution"]["avg_aqi"] }}
+
+                    </div>
+
+
+                    <div class="summary-label">
+
+                        Average AQI
+
+                    </div>
+
+
+                    <div class="summary-count">
+
+                        {{ summary["High Pollution"]["count"] }}
+                        locations
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- TIP -->
+
+                <div class="map-tip">
+
+                    <strong>
+                        💡 Tip
+                    </strong>
+
+
+                    <p>
+
+                        Click on any marker to view
+                        the city, AQI and pollution cluster.
+
+                    </p>
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- =========================================
+             ABOUT
+             ========================================= -->
+
+        <div class="map-about">
+
+
+            <h2>
+                📍 About This Map
+            </h2>
+
+
+            <p>
+
+                The map displays actual locations from
+                the cleaned air pollution dataset using
+                latitude, longitude and AQI values.
+
+            </p>
+
+
+            <p>
+
+                K-Means clustering is used with geographical
+                coordinates and AQI to identify Low,
+                Moderate and High Pollution clusters.
+
+            </p>
+
+
+        </div>
+
+
+    </main>
+
+
+
+    <!-- =========================================
+         LEAFLET
+         ========================================= -->
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+    </script>
+
+
+
+    <!-- =========================================
+         FLASK DATA
+         ========================================= -->
+
+    <script id="aqiData" type="application/json">
+        {{ locations | tojson }}
+    </script>
+
+
+
+    <script>
+
+
+        /* =========================================
+           GET DATA
+           ========================================= */
+
+        const locations = JSON.parse(
+
+            document
+                .getElementById("aqiData")
+                .textContent
+
+        );
+
+
+        /* =========================================
+           LOCATION COUNT
+           ========================================= */
+
+        document.getElementById(
+            "locationCount"
+        ).textContent = locations.length;
+
+
+
+        /* =========================================
+           CREATE MAP
+           ========================================= */
+
+        const map = L.map("aqiMap", {
+
+            center: [22.5, 79.0],
+
+            zoom: 5,
+
+            minZoom: 4,
+
+            maxZoom: 10
+
+        });
+
+
+
+        /* =========================================
+           OPEN STREET MAP
+           ========================================= */
+
+        L.tileLayer(
+
+            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+
+            {
+
+                attribution:
+                    "&copy; OpenStreetMap contributors"
+
+            }
+
+        ).addTo(map);
+
+
+
+        /* =========================================
+           MARKER COLOR
+           ========================================= */
+
+        function getColor(cluster) {
+
+
+            if (
+                cluster === "Low Pollution"
+            ) {
+
+                return "#22c55e";
+
+            }
+
+
+            if (
+                cluster === "Moderate Pollution"
+            ) {
+
+                return "#f59e0b";
+
+            }
+
+
+            return "#ef4444";
+
+        }
+
+
+
+        /* =========================================
+           ADD ALL DATASET LOCATIONS
+           ========================================= */
+
+        locations.forEach(
+
+            function(location) {
+
+
+                const marker = L.circleMarker(
+
+                    [
+                        location.lat,
+                        location.lng
+                    ],
+
+                    {
+
+                        radius: 6,
+
+                        fillColor:
+                            getColor(
+                                location.cluster
+                            ),
+
+                        color: "#ffffff",
+
+                        weight: 1.5,
+
+                        opacity: 1,
+
+                        fillOpacity: 0.9
+
+                    }
+
+                ).addTo(map);
+
+
+
+                /* POPUP */
+
+                marker.bindPopup(
+
+                    "<div style='min-width:170px'>" +
+
+                    "<h3 style='margin:0 0 8px;color:#14532d'>" +
+
+                    location.city +
+
+                    "</h3>" +
+
+                    "<b>AQI:</b> " +
+
+                    location.aqi +
+
+                    "<br><br>" +
+
+                    "<b>Cluster:</b> " +
+
+                    location.cluster +
+
+                    "</div>"
+
+                );
+
+
+            }
+
+        );
+
+
+
+        /* =========================================
+           FIX MAP SIZE
+           ========================================= */
+
+        setTimeout(
+
+            function() {
+
+                map.invalidateSize();
+
+            },
+
+            300
+
+        );
+
+
+    </script>
+
+
+</body>
+
+</html>

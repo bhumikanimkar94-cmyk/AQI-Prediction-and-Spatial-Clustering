@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>About Project | AQI Analytics</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+
+        .sidebar {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 260px !important;
+    height: 100vh !important;
+    background: #064e3b !important;
+    color: white !important;
+    padding: 18px 17px !important;
+    box-sizing: border-box !important;
+    z-index: 1000 !important;
+}
+
+.sidebar-logo {
+    margin-bottom: 28px !important;
+}
+
+.sidebar-logo h2 {
+    margin: 0 !important;
+    font-size: 24px !important;
+    color: white !important;
+}
+
+.sidebar-logo p {
+    margin: 8px 0 0 !important;
+    font-size: 16px !important;
+    color: white !important;
+}
+
+.sidebar-nav {
+    margin-top: 0 !important;
+}
+
+.sidebar .nav-link {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 13px 17px !important;
+    margin-bottom: 5px !important;
+    color: white !important;
+    text-decoration: none !important;
+    border-radius: 9px !important;
+    font-size: 16px !important;
+    font-weight: 400 !important;
+    transition: 0.2s ease !important;
+}
+
+.sidebar .nav-link span {
+    width: 18px;
+    text-align: center;
+}
+
+.sidebar .nav-link:hover {
+    background: rgba(255,255,255,0.08) !important;
+}
+
+.sidebar .nav-link.active {
+    background: #198754 !important;
+    color: white !important;
+    font-weight: 600 !important;
+}
+
+        .about-page {
+            padding: 30px;
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-header h1 {
+            margin: 0;
+            color: #14532d;
+            font-size: 30px;
+        }
+
+        .page-header p {
+            color: #6b7280;
+            margin-top: 8px;
+        }
+
+        .about-card {
+            background: white;
+            border-radius: 16px;
+            padding: 28px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            max-width: 900px;
+        }
+
+        .about-card h2 {
+            color: #14532d;
+            margin-top: 0;
+        }
+
+        .about-card p {
+            color: #4b5563;
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        .tech-box {
+            margin-top: 20px;
+            padding: 18px;
+            background: #f0fdf4;
+            border-radius: 12px;
+        }
+
+        .tech-box strong {
+            color: #14532d;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="sidebar-header">
+            <h2>🌿 AQI Analytics</h2>
+            <p>Air Quality Intelligence</p>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a href="/" class="nav-link">
+                <span>📊</span>
+                Dashboard
+            </a>
+
+            <a href="/analysis" class="nav-link">
+                <span>📈</span>
+                AQI Analysis
+            </a>
+
+            <a href="/prediction" class="nav-link">
+                <span>🔮</span>
+                AQI Prediction
+            </a>
+
+            <a href="/map" class="nav-link">
+                <span>🗺️</span>
+                Pollution Map
+            </a>
+
+            <a href="/pollutants" class="nav-link">
+                <span>🧪</span>
+                Pollutants
+            </a>
+
+            <a href="/clustering" class="nav-link">
+                <span>🔗</span>
+                Clustering
+            </a>
+
+            <a href="/dataset" class="nav-link">
+                <span>🗂️</span>
+                Dataset
+            </a>
+
+            <a href="/about" class="nav-link active">
+                <span>ℹ️</span>
+                About Project
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <div class="about-page">
+
+            <div class="page-header">
+                <h1>About Project</h1>
+                <p>Air Quality Index Analysis & Spatial Pollution Clustering</p>
+            </div>
+
+
+            <div class="about-card">
+
+                <h2>🌿 Project Overview</h2>
+
+                <p>
+                    This project analyzes air pollution data to understand
+                    AQI levels and pollution patterns across different
+                    locations in India.
+                </p>
+
+                <p>
+                    A Random Forest model is used to predict AQI from
+                    pollutant values, while K-Means clustering is used
+                    to identify different pollution groups.
+                </p>
+
+
+                <div class="tech-box">
+
+                    <strong>Technologies Used:</strong>
+
+                    <p>
+                        Python • Pandas • Scikit-learn • Flask •
+                        HTML • CSS • JavaScript • Chart.js • Leaflet
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</body>
+</html>

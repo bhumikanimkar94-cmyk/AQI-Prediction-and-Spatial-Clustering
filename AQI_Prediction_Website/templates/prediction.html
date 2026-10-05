@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AQI Prediction</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f8f7;
+            color: #123;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 265px;
+            height: 100vh;
+            background: #064b3c;
+            color: white;
+            padding: 25px 15px;
+            z-index: 1000;
+        }
+
+        .logo {
+            margin-bottom: 25px;
+        }
+
+        .logo h2 {
+            margin: 0 0 8px;
+            font-size: 25px;
+        }
+
+        .logo p {
+            margin: 0;
+            font-size: 14px;
+            color: #d9eee8;
+        }
+
+        .sidebar nav {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .sidebar nav a {
+            display: block;
+            padding: 11px 13px;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .sidebar nav a:hover {
+            background: rgba(255,255,255,0.10);
+        }
+
+        .sidebar nav a.active {
+            background: #198754;
+            font-weight: bold;
+        }
+
+        /* MAIN */
+        .main-content {
+            margin-left: 265px;
+            padding: 32px;
+            min-height: 100vh;
+        }
+
+        .page-title {
+            margin-bottom: 25px;
+        }
+
+        .page-title h1 {
+            margin: 0 0 8px;
+            font-size: 38px;
+            color: #073b32;
+        }
+
+        .page-title p {
+            margin: 0;
+            color: #64748b;
+            font-size: 16px;
+        }
+
+        /* TOP INFO */
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .info-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+
+        .info-card h4 {
+            margin: 0 0 8px;
+            color: #064b3c;
+        }
+
+        .info-card p {
+            margin: 0;
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* MAIN GRID */
+        .prediction-layout {
+            display: grid;
+            grid-template-columns: 1.35fr 1fr;
+            gap: 24px;
+        }
+
+        .card {
+            background: white;
+            padding: 28px;
+            border-radius: 18px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+        }
+
+        .card h3 {
+            margin: 0 0 22px;
+            color: #073b32;
+            font-size: 21px;
+        }
+
+        /* FORM */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #334155;
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 5px;
+            color: #94a3b8;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 9px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: #198754;
+            box-shadow: 0 0 0 2px rgba(25,135,84,0.10);
+        }
+
+        .predict-btn {
+            width: 100%;
+            margin-top: 25px;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: #198754;
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .predict-btn:hover {
+            background: #146c43;
+        }
+
+        /* RESULT */
+        .result-box {
+            text-align: center;
+            padding: 30px 20px;
+            background: #f0fdf4;
+            border-radius: 15px;
+            border: 1px solid #d1fae5;
+        }
+
+        .result-box h4 {
+            margin: 0;
+            color: #64748b;
+            font-size: 16px;
+        }
+
+        .aqi-number {
+            font-size: 58px;
+            font-weight: bold;
+            color: #198754;
+            margin: 12px 0;
+        }
+
+        .category {
+            display: inline-block;
+            padding: 9px 22px;
+            border-radius: 25px;
+            background: #198754;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .result-info {
+            margin-top: 22px;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 10px;
+            color: #475569;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        /* AQI SCALE */
+        .scale {
+            margin-top: 22px;
+        }
+
+        .scale h4 {
+            margin-bottom: 12px;
+            color: #334155;
+        }
+
+        .scale-bar {
+            height: 16px;
+            display: flex;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .good {
+            width: 16%;
+            background: #22c55e;
+        }
+
+        .satisfactory {
+            width: 17%;
+            background: #84cc16;
+        }
+
+        .moderate {
+            width: 33%;
+            background: #facc15;
+        }
+
+        .poor {
+            width: 17%;
+            background: #fb923c;
+        }
+
+        .very-poor {
+            width: 17%;
+            background: #ef4444;
+        }
+
+        .scale-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 6px;
+        }
+
+        /* MODEL */
+        .model-box {
+            margin-top: 22px;
+            padding: 18px;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .model-box h4 {
+            margin: 0 0 12px;
+            color: #073b32;
+        }
+
+        .model-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 7px 0;
+            font-size: 14px;
+        }
+
+        .model-row span:last-child {
+            font-weight: bold;
+        }
+
+        .placeholder {
+            text-align: center;
+            padding: 30px 10px;
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .placeholder-icon {
+            font-size: 55px;
+            margin-bottom: 12px;
+        }
+
+        .footer {
+            text-align: center;
+            color: #64748b;
+            font-size: 13px;
+            padding: 28px;
+        }
+
+        @media(max-width: 1100px) {
+            .prediction-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .info-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media(max-width: 700px) {
+            .sidebar {
+                width: 210px;
+            }
+
+            .main-content {
+                margin-left: 210px;
+                padding: 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <h2>🌿 AQI Analytics</h2>
+            <p>Air Quality Intelligence</p>
+        </div>
+
+        <nav>
+            <a href="/">📊 Dashboard</a>
+            <a href="/analysis">📈 AQI Analysis</a>
+            <a href="/prediction" class="active">🤖 AQI Prediction</a>
+            <a href="/map">🗺️ Pollution Map</a>
+            <a href="/pollutants">🧪 Pollutants</a>
+            <a href="/clustering">🔵 Clustering</a>
+            <a href="/dataset">📁 Dataset</a>
+            <a href="/about">ℹ️ About Project</a>
+        </nav>
+
+    </aside>
+
+
+    <!-- MAIN -->
+    <main class="main-content">
+
+        <div class="page-title">
+            <h1>AQI Prediction</h1>
+            <p>
+                Enter pollutant measurements to predict the overall Air Quality Index.
+            </p>
+        </div>
+
+
+        <!-- INFO CARDS -->
+        <div class="info-cards">
+
+            <div class="info-card">
+                <h4>🤖 Machine Learning</h4>
+                <p>Random Forest Regression model is used for AQI prediction.</p>
+            </div>
+
+            <div class="info-card">
+                <h4>📊 Input Features</h4>
+                <p>Six pollutant values are used as model inputs.</p>
+            </div>
+
+            <div class="info-card">
+                <h4>🎯 Model R²</h4>
+                <p>R² = 0.922 on the project test split.</p>
+            </div>
+
+        </div>
+
+
+        <div class="prediction-layout">
+
+            <!-- FORM -->
+            <div class="card">
+
+                <h3>Enter Pollutant Values</h3>
+
+                <form method="POST">
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+                            <label>PM2.5</label>
+                            <input type="number"
+                                   step="any"
+                                   name="pm25"
+                                   placeholder="Enter PM2.5"
+                                   required>
+                            <small>Fine particulate matter</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>PM10</label>
+                            <input type="number"
+                                   step="any"
+                                   name="pm10"
+                                   placeholder="Enter PM10"
+                                   required>
+                            <small>Particulate matter</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>O3</label>
+                            <input type="number"
+                                   step="any"
+                                   name="o3"
+                                   placeholder="Enter O3"
+                                   required>
+                            <small>Ozone concentration</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>NO2</label>
+                            <input type="number"
+                                   step="any"
+                                   name="no2"
+                                   placeholder="Enter NO2"
+                                   required>
+                            <small>Nitrogen dioxide</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>SO2</label>
+                            <input type="number"
+                                   step="any"
+                                   name="so2"
+                                   placeholder="Enter SO2"
+                                   required>
+                            <small>Sulfur dioxide</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>CO</label>
+                            <input type="number"
+                                   step="any"
+                                   name="co"
+                                   placeholder="Enter CO"
+                                   required>
+                            <small>Carbon monoxide</small>
+                        </div>
+
+                    </div>
+
+                    <button type="submit" class="predict-btn">
+                        🔍 Predict AQI
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <!-- RESULT -->
+            <div class="card">
+
+                <h3>Prediction Result</h3>
+
+                {% if prediction is not none %}
+
+                    <div class="result-box">
+
+                        <h4>Predicted AQI</h4>
+
+                        <div class="aqi-number">
+                            {{ prediction }}
+                        </div>
+
+                        <div class="category">
+                            {{ category }}
+                        </div>
+
+                    </div>
+
+                    <div class="result-info">
+                        The Random Forest model uses PM2.5, PM10, O3,
+                        NO2, SO2 and CO values to estimate the AQI.
+                    </div>
+
+                {% else %}
+
+                    <div class="placeholder">
+
+                        <div class="placeholder-icon">🌿</div>
+
+                        <p>
+                            Enter all six pollutant values and click
+                            <strong>Predict AQI</strong> to generate
+                            the predicted AQI and category.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+
+                <!-- AQI SCALE -->
+                <div class="scale">
+
+                    <h4>AQI Category Scale</h4>
+
+                    <div class="scale-bar">
+                        <div class="good"></div>
+                        <div class="satisfactory"></div>
+                        <div class="moderate"></div>
+                        <div class="poor"></div>
+                        <div class="very-poor"></div>
+                    </div>
+
+                    <div class="scale-labels">
+                        <span>0–50</span>
+                        <span>51–100</span>
+                        <span>101–200</span>
+                        <span>201–300</span>
+                        <span>301–400+</span>
+                    </div>
+
+                </div>
+
+
+                <!-- MODEL INFO -->
+                <div class="model-box">
+
+                    <h4>Model Information</h4>
+
+                    <div class="model-row">
+                        <span>Algorithm</span>
+                        <span>Random Forest</span>
+                    </div>
+
+                    <div class="model-row">
+                        <span>R² Score</span>
+                        <span>0.922</span>
+                    </div>
+
+                    <div class="model-row">
+                        <span>MAE</span>
+                        <span>7.76</span>
+                    </div>
+
+                    <div class="model-row">
+                        <span>Input Features</span>
+                        <span>6</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer">
+            © 2026 AQI Analytics | Air Quality Analysis & Prediction
+        </div>
+
+    </main>
+
+</body>
+</html>

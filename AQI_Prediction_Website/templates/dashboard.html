@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AQI Analytics | Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<div class="app-layout">
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-icon">🍃</div>
+
+            <div>
+                <h2>AQI Analytics</h2>
+                <p>Cleaner Air • Healthier Future</p>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a href="{{ url_for('dashboard') }}" class="nav-item active">
+                <span>🏠</span>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="{{ url_for('analysis') }}" class="nav-item">
+                <span>📊</span>
+                <span>AQI Analysis</span>
+            </a>
+
+            <a href="{{ url_for('prediction') }}" class="nav-item">
+                <span>🤖</span>
+                <span>AQI Prediction</span>
+            </a>
+
+            <a href="{{ url_for('pollution_map') }}" class="nav-item">
+                <span>🗺️</span>
+                <span>Pollution Map</span>
+            </a>
+
+            <a href="{{ url_for('pollutants') }}" class="nav-item">
+                <span>🧪</span>
+                <span>Pollutants</span>
+            </a>
+
+            <a href="{{ url_for('clustering') }}" class="nav-item">
+                <span>🔬</span>
+                <span>Clustering</span>
+            </a>
+
+            <a href="{{ url_for('dataset') }}" class="nav-item">
+                <span>📋</span>
+                <span>Dataset</span>
+            </a>
+
+            <a href="{{ url_for('about') }}" class="nav-item">
+                <span>ℹ️</span>
+                <span>About Project</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-model">
+
+            <div class="model-icon">🧠</div>
+
+            <div>
+                <small>ML MODEL</small>
+                <strong>Random Forest</strong>
+                <p>R² Score: 0.922</p>
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ================= MAIN CONTENT ================= -->
+
+    <main class="main-content">
+
+        <!-- TOP BAR -->
+
+        <header class="topbar">
+
+            <div>
+                <h1>Dashboard</h1>
+                <p>Overview of Air Quality Analysis & Prediction</p>
+            </div>
+
+            <div class="topbar-right">
+                <span>📅</span>
+                <div>
+                    <small>Last Updated</small>
+                    <strong>September 2026</strong>
+                </div>
+            </div>
+
+        </header>
+
+
+        <!-- ================= HERO ================= -->
+
+        <section class="hero-dashboard">
+
+            <div class="hero-content">
+
+                <span class="hero-tag">AIR QUALITY INTELLIGENCE</span>
+
+                <h2>
+                    Cleaner Air,<br>
+                    <span>Healthier Tomorrow</span>
+                </h2>
+
+                <p>
+                    Explore air-quality data, understand pollution patterns
+                    and predict AQI levels using machine learning.
+                </p>
+
+                <a href="{{ url_for('prediction') }}" class="hero-button">
+                    Predict AQI →
+                </a>
+
+            </div>
+
+            <div class="hero-visual">
+                🌳
+                <div class="hero-city">🏙️</div>
+                🍃
+            </div>
+
+        </section>
+
+
+        <!-- ================= STAT CARDS ================= -->
+
+        <section class="stats-grid">
+
+            <div class="stat-card green-card">
+
+                <div class="stat-icon">📍</div>
+
+                <div>
+                    <p>Total Locations</p>
+                    <h2>134</h2>
+                    <span>Indian Locations</span>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card blue-card">
+
+                <div class="stat-icon">💨</div>
+
+                <div>
+                    <p>Average AQI</p>
+                    <h2>105.26</h2>
+                    <span>Across all locations</span>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card red-card">
+
+                <div class="stat-icon">⚠️</div>
+
+                <div>
+                    <p>Maximum AQI</p>
+                    <h2>262</h2>
+                    <span>Highest recorded</span>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card purple-card">
+
+                <div class="stat-icon">🧠</div>
+
+                <div>
+                    <p>Model R² Score</p>
+                    <h2>0.922</h2>
+                    <span>Random Forest</span>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= CHART SECTION ================= -->
+
+        <section class="dashboard-grid">
+
+            <!-- AQI CATEGORY -->
+
+            <div class="dashboard-card">
+
+                <div class="card-heading">
+
+                    <div>
+                        <h3>AQI Category Distribution</h3>
+                        <p>Distribution of Indian locations</p>
+                    </div>
+
+                    <span class="card-icon">📊</span>
+
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="aqiCategoryChart"></canvas>
+                </div>
+
+                <div class="category-summary">
+
+                    <div>
+                        <span class="dot good"></span>
+                        <b>Good</b>
+                        <strong>11</strong>
+                    </div>
+
+                    <div>
+                        <span class="dot satisfactory"></span>
+                        <b>Satisfactory</b>
+                        <strong>57</strong>
+                    </div>
+
+                    <div>
+                        <span class="dot moderate"></span>
+                        <b>Moderate</b>
+                        <strong>61</strong>
+                    </div>
+
+                    <div>
+                        <span class="dot poor"></span>
+                        <b>Poor</b>
+                        <strong>5</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- POLLUTANT CHART -->
+
+            <div class="dashboard-card">
+
+                <div class="card-heading">
+
+                    <div>
+                        <h3>Pollutant Comparison</h3>
+                        <p>Average pollutant concentration</p>
+                    </div>
+
+                    <span class="card-icon">🧪</span>
+
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="pollutantChart"></canvas>
+                </div>
+
+                <div class="chart-note">
+                    PM2.5 has the highest average concentration
+                    among the measured pollutants.
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= QUICK ANALYSIS ================= -->
+
+        <section class="section-title">
+
+            <div>
+                <span>PROJECT OVERVIEW</span>
+                <h2>Air Quality at a Glance</h2>
+            </div>
+
+            <p>
+                Key findings from the cleaned Indian air-quality dataset.
+            </p>
+
+        </section>
+
+
+        <section class="overview-grid">
+
+            <!-- AQI RANGE -->
+
+            <div class="info-card">
+
+                <div class="info-card-top">
+                    <span class="big-icon">📈</span>
+
+                    <div>
+                        <h3>AQI Range</h3>
+                        <p>Observed values</p>
+                    </div>
+                </div>
+
+                <div class="range-values">
+
+                    <div>
+                        <small>Minimum</small>
+                        <strong>3</strong>
+                    </div>
+
+                    <div class="range-line"></div>
+
+                    <div>
+                        <small>Maximum</small>
+                        <strong>262</strong>
+                    </div>
+
+                </div>
+
+                <p class="info-text">
+                    The dataset contains locations ranging from
+                    Good air quality to Poor air quality levels.
+                </p>
+
+            </div>
+
+
+            <!-- MODEL -->
+
+            <div class="info-card">
+
+                <div class="info-card-top">
+                    <span class="big-icon">🤖</span>
+
+                    <div>
+                        <h3>Machine Learning Model</h3>
+                        <p>Random Forest Regression</p>
+                    </div>
+                </div>
+
+                <div class="model-score">
+                    <strong>92.2%</strong>
+                    <span>R² Score</span>
+                </div>
+
+                <div class="model-details">
+
+                    <div>
+                        <span>MAE</span>
+                        <b>7.76</b>
+                    </div>
+
+                    <div>
+                        <span>MSE</span>
+                        <b>200.26</b>
+                    </div>
+
+                </div>
+
+                <p class="info-text">
+                    The model predicts AQI using six pollutant
+                    measurements as input features.
+                </p>
+
+            </div>
+
+
+            <!-- DATASET -->
+
+            <div class="info-card">
+
+                <div class="info-card-top">
+                    <span class="big-icon">📋</span>
+
+                    <div>
+                        <h3>Dataset Information</h3>
+                        <p>After data cleaning</p>
+                    </div>
+                </div>
+
+                <div class="dataset-stats">
+
+                    <div>
+                        <strong>153</strong>
+                        <span>Original Rows</span>
+                    </div>
+
+                    <div>
+                        <strong>142</strong>
+                        <span>Cleaned Rows</span>
+                    </div>
+
+                    <div>
+                        <strong>134</strong>
+                        <span>Indian Locations</span>
+                    </div>
+
+                </div>
+
+                <p class="info-text">
+                    Missing pollutant values were handled using
+                    median imputation and invalid AQI values were removed.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= CLUSTERS ================= -->
+
+        <section class="section-title">
+
+            <div>
+                <span>SPATIAL ANALYSIS</span>
+                <h2>Pollution Clusters</h2>
+            </div>
+
+            <a href="{{ url_for('clustering') }}" class="view-link">
+                View Full Analysis →
+            </a>
+
+        </section>
+
+
+        <section class="cluster-grid">
+
+            <div class="cluster-card low">
+
+                <div class="cluster-header">
+                    <span>🟢</span>
+                    <h3>Low Pollution</h3>
+                </div>
+
+                <strong>87.54</strong>
+
+                <p>Average AQI</p>
+
+                <div class="cluster-bar">
+                    <div style="width: 45%;"></div>
+                </div>
+
+                <small>Cluster 1</small>
+
+            </div>
+
+
+            <div class="cluster-card moderate">
+
+                <div class="cluster-header">
+                    <span>🟡</span>
+                    <h3>Moderate Pollution</h3>
+                </div>
+
+                <strong>90.77</strong>
+
+                <p>Average AQI</p>
+
+                <div class="cluster-bar">
+                    <div style="width: 52%;"></div>
+                </div>
+
+                <small>Cluster 2</small>
+
+            </div>
+
+
+            <div class="cluster-card high">
+
+                <div class="cluster-header">
+                    <span>🔴</span>
+                    <h3>High Pollution</h3>
+                </div>
+
+                <strong>138.56</strong>
+
+                <p>Average AQI</p>
+
+                <div class="cluster-bar">
+                    <div style="width: 78%;"></div>
+                </div>
+
+                <small>Cluster 0</small>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= KEY INSIGHTS ================= -->
+
+        <section class="insights-section">
+
+            <div class="insights-content">
+
+                <span class="section-label">KEY FINDINGS</span>
+
+                <h2>What does the analysis tell us?</h2>
+
+                <p>
+                    The analysis combines AQI prediction, pollutant
+                    analysis and pollution-aware spatial clustering
+                    to understand air-quality conditions across
+                    Indian locations.
+                </p>
+
+                <div class="insight-list">
+
+                    <div class="insight-item">
+                        <span>✓</span>
+                        <p>
+                            <strong>PM2.5</strong> shows the strongest
+                            relationship with AQI in this dataset.
+                        </p>
+                    </div>
+
+                    <div class="insight-item">
+                        <span>✓</span>
+                        <p>
+                            Most locations fall under the
+                            <strong>Satisfactory and Moderate</strong>
+                            AQI categories.
+                        </p>
+                    </div>
+
+                    <div class="insight-item">
+                        <span>✓</span>
+                        <p>
+                            K-Means clustering identifies
+                            <strong>three pollution groups</strong>
+                            using location and AQI information.
+                        </p>
+                    </div>
+
+                    <div class="insight-item">
+                        <span>✓</span>
+                        <p>
+                            The Random Forest model achieved an
+                            <strong>R² score of 0.922</strong>
+                            on the test split.
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="insight-visual">
+
+                <div class="air-circle">
+                    <span>🍃</span>
+                    <strong>134</strong>
+                    <small>Locations<br>Analyzed</small>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= PROJECT OVERVIEW ================= -->
+
+        <section class="project-overview">
+
+            <div>
+
+                <span class="section-label">ABOUT THE PROJECT</span>
+
+                <h2>
+                    Analyze. Predict. Understand.
+                </h2>
+
+                <p>
+                    This project analyzes air-pollution data to
+                    predict overall AQI levels and identify
+                    pollution patterns through spatial clustering.
+                </p>
+
+                <p>
+                    The system combines data preprocessing,
+                    exploratory analysis, machine learning and
+                    interactive visualization into one platform.
+                </p>
+
+                <a href="{{ url_for('about') }}" class="primary-button">
+                    Explore Project →
+                </a>
+
+            </div>
+
+
+            <div class="technology-box">
+
+                <h3>Technologies Used</h3>
+
+                <div class="technology-list">
+
+                    <span>🐍 Python</span>
+                    <span>🐼 Pandas</span>
+                    <span>🔢 NumPy</span>
+                    <span>🤖 Scikit-learn</span>
+                    <span>🌐 Flask</span>
+                    <span>📊 Chart.js</span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= CLEAN AIR BANNER ================= -->
+
+        <section class="clean-air-banner">
+
+            <div class="clean-icon">🌍</div>
+
+            <div>
+                <span>DATA FOR A BETTER FUTURE</span>
+
+                <h2>
+                    Better Insights. Cleaner Air.
+                </h2>
+
+                <p>
+                    Monitor pollution, understand AQI patterns
+                    and make data-driven environmental decisions.
+                </p>
+            </div>
+
+            <a href="{{ url_for('prediction') }}">
+                Try AQI Prediction →
+            </a>
+
+        </section>
+
+
+        <!-- ================= FOOTER ================= -->
+
+        <footer>
+
+            <div>
+                <strong>🍃 AQI Analytics</strong>
+                <p>
+                    Air Quality Analysis & Prediction System
+                </p>
+            </div>
+
+            <div>
+                <p>
+                    Built with Python • Flask • Machine Learning
+                </p>
+                <p>
+                    © 2026 AQI Analytics
+                </p>
+            </div>
+
+        </footer>
+
+    </main>
+
+</div>
+
+
+<!-- ================= CHARTS ================= -->
+
+<script>
+
+const categoryCtx =
+    document.getElementById("aqiCategoryChart");
+
+new Chart(categoryCtx, {
+
+    type: "doughnut",
+
+    data: {
+
+        labels: [
+            "Good",
+            "Satisfactory",
+            "Moderate",
+            "Poor"
+        ],
+
+        datasets: [{
+            data: [11, 57, 61, 5],
+
+            backgroundColor: [
+                "#22c55e",
+                "#84cc16",
+                "#f59e0b",
+                "#ef4444"
+            ],
+
+            borderWidth: 3,
+            borderColor: "#ffffff"
+        }]
+    },
+
+    options: {
+
+        responsive: true,
+
+        maintainAspectRatio: false,
+
+        plugins: {
+
+            legend: {
+                position: "bottom"
+            }
+
+        },
+
+        cutout: "62%"
+    }
+
+});
+
+
+const pollutantCtx =
+    document.getElementById("pollutantChart");
+
+new Chart(pollutantCtx, {
+
+    type: "bar",
+
+    data: {
+
+        labels: [
+            "PM2.5",
+            "PM10",
+            "O3",
+            "NO2",
+            "SO2",
+            "CO"
+        ],
+
+        datasets: [{
+
+            label: "Average Level",
+
+            data: [
+                104.19,
+                77.96,
+                13.71,
+                11.00,
+                8.09,
+                7.44
+            ],
+
+            backgroundColor: [
+                "#16a34a",
+                "#22c55e",
+                "#84cc16",
+                "#f59e0b",
+                "#f97316",
+                "#ef4444"
+            ],
+
+            borderRadius: 8,
+
+            borderSkipped: false
+
+        }]
+    },
+
+    options: {
+
+        responsive: true,
+
+        maintainAspectRatio: false,
+
+        plugins: {
+
+            legend: {
+                display: false
+            }
+
+        },
+
+        scales: {
+
+            y: {
+                beginAtZero: true,
+
+                grid: {
+                    color: "#e5e7eb"
+                }
+            },
+
+            x: {
+                grid: {
+                    display: false
+                }
+            }
+
+        }
+    }
+
+});
+
+</script>
+
+</body>
+</html>

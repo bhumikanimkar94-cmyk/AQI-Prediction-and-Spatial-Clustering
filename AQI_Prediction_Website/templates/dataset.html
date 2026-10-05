@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dataset | AQI Analytics</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+
+        
+.sidebar {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 260px !important;
+    height: 100vh !important;
+    background: #064e3b !important;
+    color: white !important;
+    padding: 18px 17px !important;
+    box-sizing: border-box !important;
+    z-index: 1000 !important;
+}
+
+.sidebar-logo {
+    margin-bottom: 28px !important;
+}
+
+.sidebar-logo h2 {
+    margin: 0 !important;
+    font-size: 24px !important;
+    color: white !important;
+}
+
+.sidebar-logo p {
+    margin: 8px 0 0 !important;
+    font-size: 16px !important;
+    color: white !important;
+}
+
+.sidebar-nav {
+    margin-top: 0 !important;
+}
+
+.sidebar .nav-link {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 13px 17px !important;
+    margin-bottom: 5px !important;
+    color: white !important;
+    text-decoration: none !important;
+    border-radius: 9px !important;
+    font-size: 16px !important;
+    font-weight: 400 !important;
+    transition: 0.2s ease !important;
+}
+
+.sidebar .nav-link span {
+    width: 18px;
+    text-align: center;
+}
+
+.sidebar .nav-link:hover {
+    background: rgba(255,255,255,0.08) !important;
+}
+
+.sidebar .nav-link.active {
+    background: #198754 !important;
+    color: white !important;
+    font-weight: 600 !important;
+}
+
+        .dataset-page {
+            padding: 30px;
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 30px;
+            color: #14532d;
+        }
+
+        .page-header p {
+            margin-top: 8px;
+            color: #6b7280;
+            font-size: 15px;
+        }
+
+        .dataset-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 22px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+
+        .stat-card h3 {
+            margin: 0;
+            font-size: 14px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            margin-top: 8px;
+            font-size: 30px;
+            font-weight: 700;
+            color: #14532d;
+        }
+
+        .stat-card p {
+            margin: 5px 0 0;
+            color: #9ca3af;
+            font-size: 13px;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            margin-bottom: 25px;
+        }
+
+        .section-card h2 {
+            margin: 0;
+            color: #1f2937;
+            font-size: 21px;
+        }
+
+        .section-card > p {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .columns-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .column-item {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            padding: 13px 15px;
+            border-radius: 10px;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .column-item strong {
+            color: #14532d;
+        }
+
+        .cleaning-list {
+            margin-top: 18px;
+            padding-left: 20px;
+        }
+
+        .cleaning-list li {
+            margin-bottom: 12px;
+            color: #4b5563;
+            line-height: 1.5;
+        }
+
+        .cleaning-list strong {
+            color: #14532d;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 18px;
+        }
+
+        .summary-table th,
+        .summary-table td {
+            padding: 13px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .summary-table th {
+            background: #f0fdf4;
+            color: #14532d;
+            font-size: 14px;
+        }
+
+        .summary-table td {
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .summary-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .note-box {
+            background: #ecfdf5;
+            border-left: 5px solid #198754;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .note-box h3 {
+            margin: 0 0 8px;
+            color: #14532d;
+        }
+
+        .note-box p {
+            margin: 0;
+            color: #374151;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        @media (max-width: 900px) {
+            .dataset-stats,
+            .columns-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .dataset-page {
+                padding: 20px;
+            }
+
+            .summary-table {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="sidebar-header">
+            <h2>🌿 AQI Analytics</h2>
+            <p>Air Quality Intelligence</p>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a href="/" class="nav-link">
+                <span>📊</span>
+                Dashboard
+            </a>
+
+            <a href="/analysis" class="nav-link">
+                <span>📈</span>
+                AQI Analysis
+            </a>
+
+            <a href="/prediction" class="nav-link">
+                <span>🔮</span>
+                AQI Prediction
+            </a>
+
+            <a href="/map" class="nav-link">
+                <span>🗺️</span>
+                Pollution Map
+            </a>
+
+            <a href="/pollutants" class="nav-link">
+                <span>🧪</span>
+                Pollutants
+            </a>
+
+            <a href="/clustering" class="nav-link">
+                <span>🔗</span>
+                Clustering
+            </a>
+
+            <a href="/dataset" class="nav-link active">
+                <span>🗂️</span>
+                Dataset
+            </a>
+
+            <a href="/about" class="nav-link">
+                <span>ℹ️</span>
+                About Project
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <div class="dataset-page">
+
+            <div class="page-header">
+                <h1>Dataset Overview</h1>
+
+                <p>
+                    Information about the air pollution dataset used for
+                    AQI prediction, analysis and spatial clustering.
+                </p>
+            </div>
+
+
+            <!-- DATASET STATS -->
+            <div class="dataset-stats">
+
+                <div class="stat-card">
+                    <h3>Original Records</h3>
+
+                    <div class="stat-value">
+                        153
+                    </div>
+
+                    <p>Records in the original dataset</p>
+                </div>
+
+
+                <div class="stat-card">
+                    <h3>Cleaned Records</h3>
+
+                    <div class="stat-value">
+                        142
+                    </div>
+
+                    <p>Records after AQI cleaning</p>
+                </div>
+
+
+                <div class="stat-card">
+                    <h3>Indian Locations</h3>
+
+                    <div class="stat-value">
+                        134
+                    </div>
+
+                    <p>Locations used for clustering</p>
+                </div>
+
+            </div>
+
+
+            <!-- DATASET INFORMATION -->
+            <div class="section-card">
+
+                <h2>Dataset Information</h2>
+
+                <p>
+                    The dataset contains air quality measurements along with
+                    geographical information. It was used to analyze pollutant
+                    levels, predict AQI and identify pollution patterns across
+                    locations.
+                </p>
+
+                <div class="columns-grid">
+
+                    <div class="column-item">
+                        <strong>1.</strong> City
+                    </div>
+
+                    <div class="column-item">
+                        <strong>2.</strong> AQI
+                    </div>
+
+                    <div class="column-item">
+                        <strong>3.</strong> PM2.5
+                    </div>
+
+                    <div class="column-item">
+                        <strong>4.</strong> PM10
+                    </div>
+
+                    <div class="column-item">
+                        <strong>5.</strong> O3
+                    </div>
+
+                    <div class="column-item">
+                        <strong>6.</strong> NO2
+                    </div>
+
+                    <div class="column-item">
+                        <strong>7.</strong> SO2
+                    </div>
+
+                    <div class="column-item">
+                        <strong>8.</strong> CO
+                    </div>
+
+                    <div class="column-item">
+                        <strong>9.</strong> Latitude
+                    </div>
+
+                    <div class="column-item">
+                        <strong>10.</strong> Longitude
+                    </div>
+
+                    <div class="column-item">
+                        <strong>11.</strong> Time
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- DATA CLEANING -->
+            <div class="section-card">
+
+                <h2>Data Cleaning</h2>
+
+                <p>
+                    Before applying machine learning and clustering,
+                    the dataset was cleaned to improve the quality of
+                    the analysis.
+                </p>
+
+                <ul class="cleaning-list">
+
+                    <li>
+                        <strong>AQI Cleaning:</strong>
+                        Missing or invalid AQI values were converted
+                        and removed.
+                    </li>
+
+                    <li>
+                        <strong>AQI Outliers:</strong>
+                        AQI values above 500 were removed from the
+                        analysis.
+                    </li>
+
+                    <li>
+                        <strong>Missing Pollutant Values:</strong>
+                        Missing pollutant values were replaced using
+                        the median value of the respective pollutant.
+                    </li>
+
+                    <li>
+                        <strong>India Filtering:</strong>
+                        Geographical coordinates were used to identify
+                        Indian locations for spatial clustering.
+                    </li>
+
+                </ul>
+
+            </div>
+
+
+            <!-- DATA SUMMARY -->
+            <div class="section-card">
+
+                <h2>Final Dataset Summary</h2>
+
+                <p>
+                    The following values represent the cleaned Indian
+                    dataset used for the main analysis.
+                </p>
+
+                <table class="summary-table">
+
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+                            <td>Total Indian Locations</td>
+                            <td>134</td>
+                        </tr>
+
+                        <tr>
+                            <td>Average AQI</td>
+                            <td>105.26</td>
+                        </tr>
+
+                        <tr>
+                            <td>Minimum AQI</td>
+                            <td>3.00</td>
+                        </tr>
+
+                        <tr>
+                            <td>Maximum AQI</td>
+                            <td>262.00</td>
+                        </tr>
+
+                        <tr>
+                            <td>Number of Pollutants</td>
+                            <td>6</td>
+                        </tr>
+
+                        <tr>
+                            <td>Number of Spatial Clusters</td>
+                            <td>3</td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- NOTE -->
+            <div class="note-box">
+
+                <h3>📌 Dataset Role in the Project</h3>
+
+                <p>
+                    The cleaned dataset is used as the foundation of the
+                    complete project. Pollutant values are used by the
+                    Random Forest model for AQI prediction, while
+                    Latitude, Longitude and AQI are used for K-Means
+                    pollution clustering.
+                </p>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</body>
+</html>
